@@ -15,8 +15,9 @@ Jeweler::Tasks.new do |gem|
   gem.name = "bisect"
   gem.homepage = "http://github.com/adamonduty/bisect"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = "Implementation of the bisect algorithm"
+  gem.description = "Bisect allows you to quickly determine the first change in a list through
+    binary search."
   gem.email = "adamonduty@gmail.com"
   gem.authors = ["Adam Lamar"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
