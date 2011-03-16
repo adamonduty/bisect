@@ -1,4 +1,5 @@
 require 'helper'
+require 'bisect'
 
 class TestBisect < Test::Unit::TestCase
 
@@ -77,5 +78,21 @@ class TestBisect < Test::Unit::TestCase
         assert_equal nil, result
       end
     end
+  end
+  
+  context "when bisecting a Time" do
+    setup do 
+      @start_time = Time.parse("2011-01-01 12:00 EST")
+      @end_time = Time.parse("2011-03-15 12:00 EDT")
+      @daylight_change = Time.parse("2011-03-13 03:00 EDT")
+    end
+
+    context "in change mode" do
+      should "find daylight savings" do
+        result = @start_time.bisect(@end_time, :mode => :change) { |t| Time.at(t).dst? }
+        assert_equal @daylight_change, result
+      end
+    end
+
   end
 end
