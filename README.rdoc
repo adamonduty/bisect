@@ -1,16 +1,62 @@
 = bisect
 
-Description goes here.
+Bisect is a ruby library for applying arbitrary conditions to a binary search.
+The easiest way to understand bisect is to use git bisect to find your next bug.
 
-== Contributing to bisect
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+== Array
+
+Bisect can be applied to arrays. The simpliest example:
+
+ [1,3,5,7,9,10,12,14,16].bisect { |n| n.odd? }
+ => 10
+
+The library will perform a binary search to find the first location where the condition
+(odd?, in this case) is not true. Note that the condition must only change once in the
+array. If it doesn't, you'll get weird results:
+
+ [1,3,5,7,9,10,11,13,15].bisect { |n| n.odd? }
+ => nil
+
+Why? Applying bisect to a multi-condition array is kind of like applying binary search
+to unsorted data. It just doesn't work.
+
+Bisect also has change detection mode:
+
+ [1,3,5,7,9,10,12,14,16].bisect(:mode => :change) { |n| n.odd? }
+ => 10
+
+ [1,3,5,7,9,10,12,14,16].bisect(:mode => :change) { |n| n.even? }
+ => 10
+
+In change detection mode, the initial result of the condition doesn't matter, but
+the condition change does. Without change detection mode, the even? example would fail
+at the first element.
+
+bisect can be used for easy binary search:
+
+ [1,2,3,4,5,6,7,8,9,10].bisect() { |n| n < 5 }
+ => 5
+
+== Time
+
+While bisect can be applied to instantiated arrays, perhaps the most useful
+pattern for using bisect is for testing conditions against time. Bisect was in
+fact written to determine the first change in daylight savings time without
+having to instantiate a large array of Time objects.
+
+ require 'time'
+ start_time = Time.parse("2011-01-01 12:00 EST") # standard time
+ end_time = Time.parse("2011-03-15 12:00 EDT")   # daylight time
+
+ result = start_time.bisect(end_time, :mode => :change) { |t| Time.at(t).dst? }
+ Time.at(result)
+ => Sun Mar 13 03:00:00 -0400 2011
+
+This bisect operation is fast and accurate because it relies upon the integer
+representation of a Time and does not create an array.
+
+For now, the result returned by bisect and the block argument are always passed
+as Fixnums. In the future, this will be fixed.
 
 == Copyright
 
